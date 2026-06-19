@@ -17,11 +17,12 @@ pipeline {
         stage('Check') {
             steps {
                 script {
+                    echo "🔍 [CHECK] Iniciando verificación de Docker..."
                     sh '''
-                        echo "🔍 Verificando conexión con Docker..."
-                        docker info || echo "Docker no disponible"
+                        docker info || echo "⚠️ Docker no disponible"
                         echo "✅ Runner operativo"
                     '''
+                    echo "✔️ [CHECK] Finalizado"
                 }
             }
         }
@@ -29,6 +30,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
+                    echo "🔨 [BUILD] Construyendo imagen Docker..."
                     sh '''
                         cat <<EOF > Dockerfile
                         FROM alpine:latest
@@ -38,6 +40,7 @@ pipeline {
 
                         docker build -t $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
                     '''
+                    echo "✔️ [BUILD] Imagen construida: $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
                 }
             }
         }
@@ -45,15 +48,15 @@ pipeline {
         stage('Push') {
             steps {
                 script {
+                    echo "📦 [PUSH] Subiendo imagen al registry..."
                     sh '''
-                        echo "📦 Iniciando push al Nexus local..."
-
                         echo "$DOCKER_PASS" | docker login http://$DOCKER_REGISTRY \
                         -u "$DOCKER_USER" \
                         --password-stdin
 
                         docker push $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
                     '''
+                    echo "✔️ [PUSH] Imagen publicada en $DOCKER_REGISTRY"
                 }
             }
         }
@@ -61,9 +64,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    echo "🚀 [DEPLOY] Ejecutando Ansible..."
                     sh '''
-                        echo "🚀 Desplegando con Ansible..."
-
                         docker run --rm \
                           -v $(pwd):/ansible \
                           -w /ansible \
@@ -71,6 +73,7 @@ pipeline {
                           ansible-playbook -i hosts nginx.yml \
                           -e "frontend_version=$IMAGE_TAG"
                     '''
+                    echo "✔️ [DEPLOY] Despliegue completado con Ansible"
                 }
             }
         }
