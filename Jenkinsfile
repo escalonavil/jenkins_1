@@ -5,7 +5,7 @@ pipeline {
         DOCKER_REGISTRY = "localhost:5000"
         IMAGE_NAME = "demo-ansible"
 
-        // Jenkins expone la variable GIT_COMMIT automáticamente
+        // Jenkins expone  la variable GIT_COMMIT automáticamente
         IMAGE_TAG = "${env.GIT_COMMIT}"
 
         DOCKER_USER = "admin"
