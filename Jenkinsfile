@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = "localhost:5000"
+        DOCKER_REGISTRY = "host.docker.internal:5000"
         IMAGE_NAME = "demo-ansible"
 
         // Jenkins expone  la variable GIT_COMMIT automáticamente
